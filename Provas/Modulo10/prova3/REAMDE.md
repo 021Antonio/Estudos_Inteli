@@ -24,8 +24,13 @@ A aplicação foi construída utilizando as seguintes tecnologias:
 - [Docker](https://www.docker.com/) instalado na sua máquina.
 
 ### Passos
+## Como Rodar com Docker Compose
 
-1. Clone este repositório para a sua máquina:
+Além de rodar a aplicação diretamente com o Docker, você também pode usar o `docker-compose` para simplificar a execução, especialmente se você quiser configurar volumes ou executar vários serviços.
+
+### Passos
+
+1. Clone este repositório para a sua máquina (caso ainda não tenha clonado):
 
     ```bash
     git clone https://github.com/021Antonio/Estudos_Inteli.git
@@ -34,24 +39,37 @@ A aplicação foi construída utilizando as seguintes tecnologias:
 2. Acesse o diretório do projeto:
 
     ```bash
-    cd Estudos_Inteli/Provas/Modulo10/prova3/src
+    cd Estudos_Inteli/Provas/Modulo10/prova3
     ```
 
-3. Construa a imagem Docker:
+3. Construa e suba os serviços utilizando o `docker-compose`:
 
     ```bash
-    sudo docker build -t backend-simples .
+    sudo docker-compose up --build
     ```
 
-4. Execute o contêiner Docker:
+    Isso irá construir a imagem do backend e subir a aplicação na porta `8000`.
 
-    ```bash
-    sudo docker run -p 8000:8000 backend-simples
-    ```
+4. Acesse a documentação interativa da API:
 
-5. Acesse a documentação interativa da API:
+    Após o contêiner ser iniciado com sucesso, abra seu navegador e acesse [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) para visualizar a documentação interativa da API, onde você pode testar todos os endpoints.
 
-    Abra seu navegador e acesse [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) para visualizar a documentação interativa da API, onde você pode testar todos os endpoints.
+5. Os logs da aplicação serão salvos no diretório `logs/app.log` do seu projeto, caso precise acessar informações de execução da aplicação.
+
+## Funcionalidades Adicionadas
+
+Além das funcionalidades básicas de criação, atualização, visualização e exclusão de avaliações, os seguintes recursos foram implementados:
+
+- **Sistema de Logging**:
+  - Todos os requests e responses da API são registrados, incluindo o método HTTP, a URL requisitada, o código de status da resposta e o tempo de processamento.
+  - Os logs são armazenados em um arquivo `logs/app.log` para facilitar a análise e monitoramento da aplicação.
+  - Logs também são exibidos no console durante a execução para acompanhamento em tempo real.
+
+- **Estrutura de Middleware para Logs**:
+  - Um middleware foi adicionado para capturar informações de cada requisição e resposta, permitindo que o tempo de processamento seja medido e registrado.
+  - As informações logadas incluem o método HTTP (GET, POST, PUT, DELETE), o status de resposta (ex: 200, 404) e o tempo total de resposta para cada requisição.
+
+Com essas funcionalidades, a aplicação fica mais robusta e pronta para ser monitorada em ambientes de produção, garantindo que todos os eventos críticos sejam registrados para uma eventual análise.
 
 ## Observações sobre a Avaliação
 
