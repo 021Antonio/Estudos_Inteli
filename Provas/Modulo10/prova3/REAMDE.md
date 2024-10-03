@@ -1,5 +1,7 @@
 # Review API
 
+![Demo](./review.png)
+
 Esta é uma aplicação simples para você registrar suas avaliações de filmes e séries. Com esta API, você pode adicionar o nome do avaliador, o filme ou série que foi assistido, a nota dada e um comentário sobre o que achou. A aplicação permite criar, atualizar, visualizar e excluir avaliações.
 
 ## Funcionalidades
@@ -70,6 +72,54 @@ Além das funcionalidades básicas de criação, atualização, visualização e
   - As informações logadas incluem o método HTTP (GET, POST, PUT, DELETE), o status de resposta (ex: 200, 404) e o tempo total de resposta para cada requisição.
 
 Com essas funcionalidades, a aplicação fica mais robusta e pronta para ser monitorada em ambientes de produção, garantindo que todos os eventos críticos sejam registrados para uma eventual análise.
+
+
+## Sistema de Cache com Redis
+
+A aplicação também implementa um sistema de cache utilizando o **Redis**. O cache é usado para armazenar as respostas das requisições e acelerar o tempo de resposta das requisições subsequentes, especialmente em endpoints que retornam dados que não mudam com frequência.
+
+### Como o cache funciona
+
+1. **Geração de Chaves de Cache**:
+   - Para cada requisição recebida pela API, uma chave única de cache é gerada com base no método HTTP (GET, POST, etc.) e no caminho da URL. Essa chave é então usada para armazenar e recuperar a resposta do cache.
+   - Exemplo de chave: `"GET_/reviews"`.
+
+2. **Armazenamento no Redis**:
+   - A resposta da API é processada normalmente e, se a resposta tiver o código de status `200`, ela é armazenada no Redis utilizando a chave gerada. O tempo de vida padrão (TTL) da chave no Redis é de 300 segundos (5 minutos).
+
+3. **Verificação do Cache**:
+   - Para cada nova requisição, o sistema verifica se já existe uma resposta correspondente armazenada no Redis. Se sim, a resposta cacheada é retornada diretamente, sem precisar processar a lógica da API novamente, economizando recursos e reduzindo o tempo de resposta.
+
+4. **Expiração do Cache**:
+   - O cache armazenado no Redis expira automaticamente após 5 minutos, após o qual novas requisições para o mesmo endpoint resultarão no processamento completo da API, e a resposta será novamente armazenada no cache.
+
+### Verificando o cache no Redis
+
+1. **Ver as chaves no Redis**:
+   Para verificar quais chaves estão armazenadas no Redis, você pode usar o seguinte comando no Redis CLI:
+   ```bash
+   redis-cli KEYS *
+   ```
+
+Isso listará todas as chaves de cache atualmente armazenadas no Redis.
+
+2. Ver o valor de uma chave específica: Para ver o conteúdo armazenado em uma chave específica, use o comando:
+
+   ```bash
+  redis-cli GET <chave>
+   ```
+
+Por exemplo, se a chave for "GET_/reviews", o comando seria:
+
+```bash
+redis-cli GET GET_/reviews
+```
+
+### Problema com a Formatação do JSON no Cache
+Durante a implementação do sistema de cache, foi identificado um problema com a formatação das respostas JSON. Ao recuperar a resposta do cache, a formatação JSON pode vir corrompida, resultando em respostas malformadas para o cliente.
+
+**Causa**
+O problema ocorre porque o corpo da resposta é tratado como uma string e armazenado diretamente no Redis, sem a devida serialização e desserialização utilizando JSON, o que pode levar a problemas de escape de caracteres e duplicação de barras invertidas (\).
 
 ## Observações sobre a Avaliação
 
