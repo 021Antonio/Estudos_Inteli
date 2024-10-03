@@ -1,5 +1,3 @@
-# src/repository/produtos.py
-
 from models.review import Review
 from sqlalchemy.orm import Session
 
